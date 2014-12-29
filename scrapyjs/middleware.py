@@ -21,6 +21,7 @@ class WebkitDownloader( object ):
     def process_request( self, request, spider ):
         if 'renderjs' in request.meta:
             webview = self._get_webview()
+            webview.connect('console-message', self._suppress_jsconsole)
             webview.connect('load-finished', self.stop_gtk)
             webview.load_uri(request.url)
             gtk.main()
@@ -29,3 +30,5 @@ class WebkitDownloader( object ):
             html = ctx.EvaluateScript('document.documentElement.innerHTML')
             return HtmlResponse(url, encoding='utf-8', body=html.encode('utf-8'))
 
+    def _suppress_jsconsole(self, *args, **kwargs):
+        return True
